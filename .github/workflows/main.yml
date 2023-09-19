@@ -1,0 +1,26 @@
+name: Jenkins Configuration as Code
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: redhat/centos8
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Jenkins Configuration as Code plugin
+        run: |
+          curl -fsSL https://pkg.jenkins.io/plugin-manager/install.sh | sh
+          jenkins-plugin-manager install configuration-as-code
+
+      - name: Apply Jenkins configuration
+        run: |
+          jcasc -v reload -c $JENKINS_HOME/jenkins.yaml
+
+      - name: Restart Jenkins
+        run: |
+          sudo systemctl restart jenkins
